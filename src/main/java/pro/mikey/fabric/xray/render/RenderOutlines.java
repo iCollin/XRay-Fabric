@@ -10,7 +10,9 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import pro.mikey.fabric.xray.ScanController;
+import pro.mikey.fabric.xray.cache.RenderBlock;
 import pro.mikey.fabric.xray.storage.Stores;
 
 public class RenderOutlines {
@@ -33,16 +35,17 @@ public class RenderOutlines {
         entityVertexConsumers.draw(XRayRenderType.OVERLAY_LINES);
     }
 
-    private static void renderBlockBounding(MatrixStack matrices, VertexConsumer builder, BlockPos b) {
+    private static void renderBlockBounding(MatrixStack matrices, VertexConsumer builder, RenderBlock b) {
         if( b == null )
             return;
 
+        Vec3i pos = b.getBlockPos();
         final float size = 1.0f;
-        final float x = b.getX(), y = b.getY(), z = b.getZ(), opacity = .5f;
+        final float x = pos.getX(), y = pos.getY(), z = pos.getZ(), opacity = 0.5f;
 
-        final float red = 0;//(b.getColor() >> 16 & 0xff) / 255f;
-        final float green = 0;//(b.getColor() >> 8 & 0xff) / 255f;
-        final float blue = 255;//(b.getColor() & 0xff) / 255f;
+        final float red = (b.getColor() >> 16 & 0xff) / 255f;
+        final float green = (b.getColor() >> 8 & 0xff) / 255f;
+        final float blue = (b.getColor() & 0xff) / 255f;
 
         WorldRenderer.drawBox(matrices, builder, x, y, z, x + size, y + size, z + size, red, green, blue, opacity);
     }

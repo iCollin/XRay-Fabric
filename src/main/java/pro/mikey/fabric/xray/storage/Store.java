@@ -29,7 +29,6 @@ public abstract class Store<T> {
         try {
             try {
                 T t = gson.fromJson(new FileReader(this.file), this.getType());
-                System.out.println(t);
                 return t;
             } catch (JsonIOException | JsonSyntaxException e) {
                 XRay.LOGGER.fatal("Fatal error with json loading on {}.json", this.name, e);

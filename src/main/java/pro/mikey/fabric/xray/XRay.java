@@ -44,11 +44,7 @@ public class XRay implements ModInitializer {
 		KeyBindingHelper.registerKeyBinding(guiButton);
 
 		BlockStore blocks = Stores.BLOCKS;
-
-		blocks.read();
-		blocks.updateCache(blocks.get());
-
-		System.out.println(blocks.cache.get());
+		System.out.println("blocks get: " + blocks.get());
 	}
 
 	private void gameClosing(MinecraftClient client) {

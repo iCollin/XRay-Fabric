@@ -9,7 +9,7 @@ public class StateSettings {
     public StateSettings() {
         this.isActive = false;
         this.showLava = false;
-        this.range = 3;
+        this.range = 6;
     }
 
     public void setActive(boolean active) {

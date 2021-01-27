@@ -7,16 +7,15 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import pro.mikey.fabric.xray.cache.RenderBlock;
 import pro.mikey.fabric.xray.storage.SettingsStore;
 import pro.mikey.fabric.xray.storage.Stores;
 
 import java.util.*;
 
 public class ScanController {
-    public static List<BlockPos> renderQueue = Collections.synchronizedList( new ArrayList<>() );
+    public static List<RenderBlock> renderQueue = Collections.synchronizedList( new ArrayList<>() );
 
-    // Temp
-    public static final Set<Block> scanningBlocks = new HashSet<>(Arrays.asList(Blocks.DIAMOND_ORE, Blocks.REDSTONE_ORE, Blocks.GRASS, Blocks.GRASS_BLOCK, Blocks.SAND));
     private static ChunkPos playerLastChunk;
 
     /**

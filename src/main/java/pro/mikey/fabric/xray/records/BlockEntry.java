@@ -1,19 +1,17 @@
 package pro.mikey.fabric.xray.records;
 
+import net.minecraft.block.Block;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+
 public class BlockEntry {
     String state;
     String name;
-    String hex;
-    int order;
-    boolean isDefault;
     boolean active;
 
-    public BlockEntry(String state, String name, String hex, int order, boolean isDefault, boolean active) {
+    public BlockEntry(String state, String name, boolean active) {
         this.state = state;
         this.name = name;
-        this.hex = hex;
-        this.order = order;
-        this.isDefault = isDefault;
         this.active = active;
     }
 
@@ -25,19 +23,19 @@ public class BlockEntry {
         return name;
     }
 
-    public String getHex() {
-        return hex;
-    }
-
-    public int getOrder() {
-        return order;
-    }
-
-    public boolean isDefault() {
-        return isDefault;
-    }
-
     public boolean isActive() {
         return active;
+    }
+
+    public Block getBlock() {
+        Block block = Registry.BLOCK.get(new Identifier(this.name));
+        return block;
+    }
+
+    public String toString() {
+        if (state.length() > 0) {
+            return name + "{" + state + "}[" + "]";
+        }
+        return name;
     }
 }

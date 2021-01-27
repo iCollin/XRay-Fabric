@@ -15,12 +15,10 @@ import pro.mikey.fabric.xray.records.BasicColor;
 public class BlockSearchEntry {
     private final BlockState state;
     private final BasicColor color;
-    private final boolean isDefault;
 
-    public BlockSearchEntry(BlockState state, BasicColor color, boolean isDefault) {
+    public BlockSearchEntry(BlockState state, BasicColor color) {
         this.state = state;
         this.color = color;
-        this.isDefault = isDefault;
     }
 
     public static BlockState blockStateFromStringNBT(String nbt) {
@@ -47,10 +45,6 @@ public class BlockSearchEntry {
         return color;
     }
 
-    public boolean isDefault() {
-        return isDefault;
-    }
-
     // We don't care about the color and isDefault
     @Override
     public boolean equals(Object o) {
@@ -70,7 +64,6 @@ public class BlockSearchEntry {
         return MoreObjects.toStringHelper(this)
                 .add("state", state)
                 .add("color", color)
-                .add("isDefault", isDefault)
                 .toString();
     }
 }

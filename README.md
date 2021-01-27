@@ -19,6 +19,53 @@ Looking for the Forge version? Click the button below :tada:
 <a href="https://github.com/michaelhillcox/xray-mod"><img src=".github/assets/xray-forge-badge.svg" alt="drawing" width="265"/>
 </a>
 
+## FORKED BY iCollin
+
+Hello, this is a version hacked by iCollin to work with 1.16.4, but is missing many features of the original mod and is not as good as MichaelHillcox's version.
+Please do not ask me for help with this mod, I do not intend to support it.
+All credit to MichaelHillcox, please see if original mod is supported before using this, the original will have less issues and more features.
+
+If you would like to use this hacked fork, here is my instructions:
+
+- Controls are found in Minecraft Controls tab (default is `g` to toggle xray on and off)
+- The GUI does not work
+- Block states are ignored
+- Configuration can be done via the file at `minecraft/config/advanced-xray-fabric`
+
+Here is an example config:
+
+```
+[
+  {
+    "name": "containers",
+    "entries": [
+      {
+        "state": "",
+        "name": "chest",
+        "active": true
+      },
+      {
+        "state": "",
+        "name": "trapped_chest",
+        "active": true
+      }
+    ],
+    "color": "#ff0000"
+  },
+  {
+    "name": "beehives",
+    "entries": [
+      {
+        "state": "",
+        "name": "bee_nest",
+        "active": true
+      }
+    ],
+    "color": "#d4be17"
+  }
+]
+```
+
 ## Disclaimer
 I am a `Forge Mod` Developer, not a Fabric Mod Developer, I am doing this mod per user request and out of pure intrest in learning a new API. The current status of this mod is `Unreleased` as the mod is currently a `WIP`. Don't `@` me.
 

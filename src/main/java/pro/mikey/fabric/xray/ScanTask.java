@@ -2,13 +2,21 @@ package pro.mikey.fabric.xray;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
+import pro.mikey.fabric.xray.cache.RenderBlock;
+import pro.mikey.fabric.xray.records.BlockEntry;
+import pro.mikey.fabric.xray.records.BlockGroup;
+import pro.mikey.fabric.xray.records.XrayGroup;
+import pro.mikey.fabric.xray.storage.BlockStore;
+import pro.mikey.fabric.xray.storage.Stores;
 
 import java.util.*;
 
@@ -28,8 +36,9 @@ public class ScanTask implements Runnable {
      * This is only run if the cache is invalidated.
      * @implNote Using the {@link BlockPos#iterate(BlockPos, BlockPos)} may be a better system for the scanning.
      */
-    private List<BlockPos> collectBlocks() {
-        Set<Block> blocks = ScanController.scanningBlocks;
+    private List<RenderBlock> collectBlocks() {
+        BlockStore blockStore = BlockStore.getInstance();
+        List<XrayGroup> blocks = blockStore.getXrayGroups();
 
         // If we're not looking for blocks, don't run.
         if ( blocks.isEmpty() ) {
@@ -47,13 +56,12 @@ public class ScanTask implements Runnable {
         if( world == null || player == null )
             return new ArrayList<>();
 
-        final List<BlockPos> renderQueue = new ArrayList<>();
+        final List<RenderBlock> renderQueue = new ArrayList<>();
 
         int cX = player.chunkX;
         int cZ = player.chunkZ;
 
-        int range = 2 / 2;
-        System.out.println("Running");
+        int range = Stores.SETTINGS.get().getRange();
         for(int i = cX - range; i <= cX + range; i ++) {
             int chunkStartX = i << 4;
             for (int j = cZ - range; j <= cZ + range; j++) {
@@ -68,8 +76,15 @@ public class ScanTask implements Runnable {
                     for (int l = chunkStartZ; l < chunkStartZ + 16; l++) {
                         for (int m = 0; m < height + (1 << 4); m++) {
                             BlockPos pos = new BlockPos(k, m, l);
-                            if (isValidBlock(pos, world, blocks)) {
-                                renderQueue.add(pos);
+                            BlockState state = world.getBlockState(pos);
+                            if (state.isAir()) {
+                                continue;
+                            }
+                            Block testBlock = state.getBlock();
+                            for (XrayGroup group : blocks) {
+                                if (group.getBlocks().contains(testBlock)) {
+                                    renderQueue.add(new RenderBlock(pos, group.getColor()));
+                                }
                             }
                         }
                     }
@@ -78,10 +93,5 @@ public class ScanTask implements Runnable {
         }
 
         return renderQueue;
-    }
-
-    private boolean isValidBlock(BlockPos pos, World world, Set<Block> blocks) {
-        BlockState state = world.getBlockState(pos);
-        return !state.isAir() && blocks.contains(state.getBlock());
     }
 }
