@@ -4,24 +4,25 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Util;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
-import pro.mikey.fabric.xray.cache.BlockSearchEntry;
-import pro.mikey.fabric.xray.records.BlockEntry;
-import pro.mikey.fabric.xray.records.BlockGroup;
+import pro.mikey.fabric.xray.cache.RenderBlock;
 import pro.mikey.fabric.xray.screens.MainScreen;
 import pro.mikey.fabric.xray.storage.BlockStore;
 import pro.mikey.fabric.xray.storage.Stores;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class XRay implements ModInitializer {
@@ -29,8 +30,14 @@ public class XRay implements ModInitializer {
 	public static final String MOD_ID = "advanced-xray-fabric";
 	public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
+	private static ChunkPos lastScannedFromChunk = new ChunkPos(0, 0);
+	public static List<RenderBlock> renderQueue = Collections.synchronizedList( new ArrayList<>() );
+
 	private final KeyBinding xrayButton = new KeyBinding("keybinding.enable_xray", GLFW.GLFW_KEY_G, "category.xray");
 	private final KeyBinding guiButton = new KeyBinding("keybinding.open_gui", GLFW.GLFW_KEY_BACKSLASH, "category.xray");
+
+	private final MutableText activateMessage = new TranslatableText("message.xray_active").formatted(Formatting.GREEN);
+	private final MutableText deactivateMessage = new TranslatableText("message.xray_deactivate").formatted(Formatting.RED);
 
 	private int keyCoolDown = 0;
 
@@ -53,6 +60,28 @@ public class XRay implements ModInitializer {
 		Stores.BLOCKS.write();
 	}
 
+	private boolean playerHasMovedOutOfCacheRange(PlayerEntity player) {
+		int xDiff = player.chunkX - lastScannedFromChunk.x;
+		int zDiff = player.chunkZ - lastScannedFromChunk.z;
+
+		// to be added to config later
+		final int cacheDistance = Stores.SETTINGS.getInstance().get().getCacheRange();
+
+		if (xDiff > -cacheDistance && xDiff < cacheDistance
+				&& zDiff > -cacheDistance && zDiff < cacheDistance) {
+			// player hasn't moved out of cache range
+			return false;
+		}
+
+		return true;
+	}
+
+	private void updateBlockCache(PlayerEntity player) {
+		// Update the players last chunk to eval against above.
+		lastScannedFromChunk = new ChunkPos(player.chunkX, player.chunkZ);
+		Util.getMainWorkerExecutor().execute(new ScanTask());
+	}
+
 	/**
 	 * Handles the actual scanning process :D
 	 */
@@ -60,17 +89,15 @@ public class XRay implements ModInitializer {
 		PlayerEntity player = mc.player;
 		World world = mc.world;
 
-		if (player == null || world == null) {
-			return;
-		}
-
-		// Don't handle key bindings
-		if (mc.currentScreen != null) {
+		if (player == null || world == null || mc.currentScreen != null) {
 			return;
 		}
 
 		// Try and run the task :D
-		ScanController.runTask(false);
+		if (Stores.SETTINGS.get().isActive()
+			&& playerHasMovedOutOfCacheRange(player)) {
+			updateBlockCache(player);
+		}
 
 		// Handle cooldown for the keybinding to stop it spamming
 		if (keyCoolDown > 0) {
@@ -85,15 +112,10 @@ public class XRay implements ModInitializer {
 		if (xrayButton.isPressed()) {
 			StateSettings stateSettings = Stores.SETTINGS.get();
 
-			if (stateSettings.isActive()) {
-				stateSettings.setActive(false);
-				mc.player.sendMessage(new TranslatableText("message.xray_deactivate").formatted(Formatting.RED), true);
-			} else {
-				stateSettings.setActive(true);
-				mc.player.sendMessage(new TranslatableText("message.xray_active").formatted(Formatting.GREEN), true);
-			}
+			stateSettings.setActive(!stateSettings.isActive());
+			player.sendMessage(stateSettings.isActive() ? activateMessage : deactivateMessage, true);
 
-			keyCoolDown = 10;
+			keyCoolDown = 5;
 		}
 	}
 }

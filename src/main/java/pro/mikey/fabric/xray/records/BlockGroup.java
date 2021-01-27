@@ -24,12 +24,4 @@ public class BlockGroup {
     public String getColor() {
         return color;
     }
-
-    public String toString() {
-        String ret = this.color + " [ ";
-        for (BlockEntry entry : entries){
-            ret += entry.toString() + " ";
-        }
-        return ret + "]";
-    }
 }

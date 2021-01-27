@@ -4,12 +4,14 @@ public class StateSettings {
     private boolean isActive;
     private boolean showLava;
     private int range;
+    private int cacheRange;
 
     // Singleton
     public StateSettings() {
         this.isActive = false;
         this.showLava = false;
         this.range = 6;
+        this.cacheRange = 2;
     }
 
     public void setActive(boolean active) {
@@ -34,5 +36,9 @@ public class StateSettings {
 
     public int getRange() {
         return range;
+    }
+
+    public int getCacheRange() {
+        return cacheRange;
     }
 }

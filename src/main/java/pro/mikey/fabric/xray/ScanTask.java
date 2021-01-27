@@ -25,8 +25,8 @@ public class ScanTask implements Runnable {
 
     @Override
     public void run() {
-        ScanController.renderQueue.clear();
-        ScanController.renderQueue.addAll(this.collectBlocks());
+        XRay.renderQueue.clear();
+        XRay.renderQueue.addAll(this.collectBlocks());
     }
 
     /**
@@ -42,8 +42,8 @@ public class ScanTask implements Runnable {
 
         // If we're not looking for blocks, don't run.
         if ( blocks.isEmpty() ) {
-            if( !ScanController.renderQueue.isEmpty() )
-                ScanController.renderQueue.clear();
+            if( !XRay.renderQueue.isEmpty() )
+                XRay.renderQueue.clear();
             return new ArrayList<>();
         }
 

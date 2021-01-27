@@ -31,11 +31,4 @@ public class BlockEntry {
         Block block = Registry.BLOCK.get(new Identifier(this.name));
         return block;
     }
-
-    public String toString() {
-        if (state.length() > 0) {
-            return name + "{" + state + "}[" + "]";
-        }
-        return name;
-    }
 }

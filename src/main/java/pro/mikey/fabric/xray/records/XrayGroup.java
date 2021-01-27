@@ -14,7 +14,9 @@ public class XrayGroup {
 
         this.blocks = new HashSet<>();
         for (BlockEntry be : bg.getEntries()) {
-            this.blocks.add(be.getBlock());
+            if (be.isActive()) {
+                this.blocks.add(be.getBlock());
+            }
         }
     }
 

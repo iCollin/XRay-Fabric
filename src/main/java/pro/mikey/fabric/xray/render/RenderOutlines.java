@@ -7,17 +7,15 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
-import pro.mikey.fabric.xray.ScanController;
+import pro.mikey.fabric.xray.XRay;
 import pro.mikey.fabric.xray.cache.RenderBlock;
 import pro.mikey.fabric.xray.storage.Stores;
 
 public class RenderOutlines {
     public static void render(MatrixStack matrices, Camera camera) {
-        if (ScanController.renderQueue.isEmpty() || !Stores.SETTINGS.get().isActive()) {
+        if (XRay.renderQueue.isEmpty() || !Stores.SETTINGS.get().isActive()) {
             return;
         }
 
@@ -28,7 +26,7 @@ public class RenderOutlines {
         matrices.push();
         matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
-        ScanController.renderQueue.forEach(e -> renderBlockBounding(matrices, builder, e));
+        XRay.renderQueue.forEach(e -> renderBlockBounding(matrices, builder, e));
 
         RenderSystem.disableDepthTest();
         matrices.pop();
