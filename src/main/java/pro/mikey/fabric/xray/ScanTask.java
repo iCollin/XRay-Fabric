@@ -2,18 +2,12 @@ package pro.mikey.fabric.xray;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
 import pro.mikey.fabric.xray.cache.RenderBlock;
-import pro.mikey.fabric.xray.records.BlockEntry;
-import pro.mikey.fabric.xray.records.BlockGroup;
 import pro.mikey.fabric.xray.records.XrayGroup;
 import pro.mikey.fabric.xray.storage.BlockStore;
 import pro.mikey.fabric.xray.storage.Stores;
@@ -26,56 +20,38 @@ public class ScanTask implements Runnable {
     @Override
     public void run() {
         XRay.renderQueue.clear();
-        XRay.renderQueue.addAll(this.collectBlocks());
-    }
 
-    /**
-     * This is an "exact" copy from the forge version of the mod but with the optimisations
-     * that the rewrite (Fabric) version has brought like chunk location based cache, etc.
-     *
-     * This is only run if the cache is invalidated.
-     * @implNote Using the {@link BlockPos#iterate(BlockPos, BlockPos)} may be a better system for the scanning.
-     */
-    private List<RenderBlock> collectBlocks() {
-        BlockStore blockStore = BlockStore.getInstance();
-        List<XrayGroup> blocks = blockStore.getXrayGroups();
-
-        // If we're not looking for blocks, don't run.
-        if ( blocks.isEmpty() ) {
-            if( !XRay.renderQueue.isEmpty() )
-                XRay.renderQueue.clear();
-            return new ArrayList<>();
+        List<XrayGroup> blocks = BlockStore.getInstance().getXrayGroups();
+        if (blocks.isEmpty()) {
+            return;
         }
 
         MinecraftClient instance = MinecraftClient.getInstance();
-
         final World world = instance.world;
         final PlayerEntity player = instance.player;
 
-        // Just stop if we can't get the player or world.
         if( world == null || player == null )
-            return new ArrayList<>();
+            return;
 
-        final List<RenderBlock> renderQueue = new ArrayList<>();
+        int playerChunkX = player.chunkX;
+        int playerChunkZ = player.chunkZ;
+        int scanChunkRange = Stores.SETTINGS.get().getRange();
+        
+        for (int chunkX = playerChunkX - scanChunkRange; chunkX <= playerChunkX + scanChunkRange; chunkX++) {
+            for (int chunkZ = playerChunkZ - scanChunkRange; chunkZ <= playerChunkZ + scanChunkRange; chunkZ++) {
 
-        int cX = player.chunkX;
-        int cZ = player.chunkZ;
+                int maxScanHeight = 0;
 
-        int range = Stores.SETTINGS.get().getRange();
-        for(int i = cX - range; i <= cX + range; i ++) {
-            int chunkStartX = i << 4;
-            for (int j = cZ - range; j <= cZ + range; j++) {
-                int chunkStartZ = j << 4;
+                for (ChunkSection subChunk : world.getChunk(chunkX, chunkZ).getSectionArray()) {
+                    if (subChunk != null && subChunk.getYOffset() >= maxScanHeight) {
+                        maxScanHeight = subChunk.getYOffset() + 16;
+                    }
+                }
 
-                int height = Arrays.stream(world.getChunk(i, j).getSectionArray())
-                        .filter(Objects::nonNull)
-                        .mapToInt(ChunkSection::getYOffset)
-                        .max().orElse(0);
-
-                for (int k = chunkStartX; k < chunkStartX + 16; k++) {
-                    for (int l = chunkStartZ; l < chunkStartZ + 16; l++) {
-                        for (int m = 0; m < height + (1 << 4); m++) {
-                            BlockPos pos = new BlockPos(k, m, l);
+                for (int x = chunkX * 16; x < (chunkX + 1) * 16; x++) {
+                    for (int z = chunkZ * 16; z < (chunkZ + 1) + 16; z++) {
+                        for (int y = 0; y < maxScanHeight; y++) {
+                            BlockPos pos = new BlockPos(x, y, z);
                             BlockState state = world.getBlockState(pos);
                             if (state.isAir()) {
                                 continue;
@@ -83,7 +59,7 @@ public class ScanTask implements Runnable {
                             Block testBlock = state.getBlock();
                             for (XrayGroup group : blocks) {
                                 if (group.getBlocks().contains(testBlock)) {
-                                    renderQueue.add(new RenderBlock(pos, group.getColor()));
+                                    XRay.renderQueue.add(new RenderBlock(pos, group.getColor()));
                                 }
                             }
                         }
@@ -91,7 +67,5 @@ public class ScanTask implements Runnable {
                 }
             }
         }
-
-        return renderQueue;
     }
 }
