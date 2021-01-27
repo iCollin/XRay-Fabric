@@ -34,9 +34,11 @@ public class XRay implements ModInitializer {
 	public static List<RenderBlock> renderQueue = Collections.synchronizedList( new ArrayList<>() );
 
 	private final KeyBinding xrayButton = new KeyBinding("keybinding.enable_xray", GLFW.GLFW_KEY_G, "category.xray");
+	private final KeyBinding refreshButton = new KeyBinding("keybinding.refresh_xray", GLFW.GLFW_KEY_Y, "category.xray");
 	private final KeyBinding guiButton = new KeyBinding("keybinding.open_gui", GLFW.GLFW_KEY_BACKSLASH, "category.xray");
 
 	private final MutableText activateMessage = new TranslatableText("message.xray_active").formatted(Formatting.GREEN);
+	private final MutableText refreshMessage = new TranslatableText("message.xray_refreshed").formatted(Formatting.GOLD);
 	private final MutableText deactivateMessage = new TranslatableText("message.xray_deactivate").formatted(Formatting.RED);
 
 	private int keyCoolDown = 0;
@@ -48,6 +50,7 @@ public class XRay implements ModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(this::clientTickEvent);
 		ClientLifecycleEvents.CLIENT_STOPPING.register(this::gameClosing);
 		KeyBindingHelper.registerKeyBinding(xrayButton);
+		KeyBindingHelper.registerKeyBinding(refreshButton);
 		KeyBindingHelper.registerKeyBinding(guiButton);
 
 		BlockStore blocks = Stores.BLOCKS;
@@ -107,15 +110,15 @@ public class XRay implements ModInitializer {
 
 		if (guiButton.isPressed()) {
 			mc.openScreen(new MainScreen());
-		}
-
-		if (xrayButton.isPressed()) {
+		} else if (xrayButton.isPressed()) {
+			keyCoolDown = 5;
 			StateSettings stateSettings = Stores.SETTINGS.get();
-
 			stateSettings.setActive(!stateSettings.isActive());
 			player.sendMessage(stateSettings.isActive() ? activateMessage : deactivateMessage, true);
-
+		} else if (refreshButton.isPressed()) {
 			keyCoolDown = 5;
+			player.sendMessage(refreshMessage, true);
+			updateBlockCache(player);
 		}
 	}
 }
