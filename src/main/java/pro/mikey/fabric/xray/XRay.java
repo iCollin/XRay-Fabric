@@ -37,11 +37,13 @@ public class XRay implements ModInitializer {
 	private final KeyBinding refreshButton = new KeyBinding("keybinding.refresh_xray", GLFW.GLFW_KEY_Y, "category.xray");
 	private final KeyBinding guiButton = new KeyBinding("keybinding.open_gui", GLFW.GLFW_KEY_BACKSLASH, "category.xray");
 
+	private static boolean xrayWasDown = false;
+	private static boolean refreshWasDown = false;
+	private static boolean guiWasDown = false;
+
 	private final MutableText activateMessage = new TranslatableText("message.xray_active").formatted(Formatting.GREEN);
 	private final MutableText refreshMessage = new TranslatableText("message.xray_refreshed").formatted(Formatting.GOLD);
 	private final MutableText deactivateMessage = new TranslatableText("message.xray_deactivate").formatted(Formatting.RED);
-
-	private int keyCoolDown = 0;
 
 	@Override
 	public void onInitialize() {
@@ -102,23 +104,19 @@ public class XRay implements ModInitializer {
 			updateBlockCache(player);
 		}
 
-		// Handle cooldown for the keybinding to stop it spamming
-		if (keyCoolDown > 0) {
-			keyCoolDown --;
-			return;
-		}
-
-		if (guiButton.isPressed()) {
+		if (guiButton.isPressed() && !guiWasDown) {
 			mc.openScreen(new MainScreen());
-		} else if (xrayButton.isPressed()) {
-			keyCoolDown = 5;
+		} else if (xrayButton.isPressed() && !xrayWasDown) {
 			StateSettings stateSettings = Stores.SETTINGS.get();
 			stateSettings.setActive(!stateSettings.isActive());
 			player.sendMessage(stateSettings.isActive() ? activateMessage : deactivateMessage, true);
-		} else if (refreshButton.isPressed()) {
-			keyCoolDown = 5;
+		} else if (refreshButton.isPressed() && !refreshWasDown) {
 			player.sendMessage(refreshMessage, true);
 			updateBlockCache(player);
 		}
+
+		xrayWasDown = xrayButton.isPressed();
+		refreshWasDown = refreshButton.isPressed();
+		guiWasDown = guiButton.isPressed();
 	}
 }
