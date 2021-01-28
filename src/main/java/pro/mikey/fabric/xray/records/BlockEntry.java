@@ -27,6 +27,10 @@ public class BlockEntry {
         return active;
     }
 
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     public Block getBlock() {
         Block block = Registry.BLOCK.get(new Identifier(this.name));
         return block;

@@ -24,4 +24,8 @@ public class BlockGroup {
     public String getColor() {
         return color;
     }
+
+    public int getColorInt() {
+        return Integer.valueOf(color.substring(1), 16);
+    }
 }

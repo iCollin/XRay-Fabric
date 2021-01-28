@@ -1,6 +1,7 @@
 package pro.mikey.fabric.xray.records;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 
 import java.util.HashSet;
 
@@ -9,9 +10,7 @@ public class XrayGroup {
     private HashSet<Block> blocks;
 
     public XrayGroup(BlockGroup bg) {
-        String color = bg.getColor();
-        this.color = Integer.valueOf(color.substring(1), 16);
-
+        this.color = bg.getColorInt();
         this.blocks = new HashSet<>();
         for (BlockEntry be : bg.getEntries()) {
             if (be.isActive()) {

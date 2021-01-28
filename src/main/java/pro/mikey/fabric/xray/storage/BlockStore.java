@@ -34,6 +34,10 @@ public class BlockStore extends Store<List<BlockGroup>> {
             entries.add(new BlockGroup("default", blocks, "#FF0000"));
         }
 
+        setBlockEntries(entries);
+    }
+
+    public void setBlockEntries(List<BlockGroup> entries) {
         this.blockEntries = entries;
         this.xrayGroups = new ArrayList<>();
 
