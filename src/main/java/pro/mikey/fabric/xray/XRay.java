@@ -112,7 +112,6 @@ public class XRay implements ModInitializer {
 			player.sendMessage(stateSettings.isActive() ? activateMessage : deactivateMessage, true);
 		} else if (refreshButton.isPressed() && !refreshWasDown) {
 			player.sendMessage(refreshMessage, true);
-			player.sendMessage(refreshMessage, false);
 			updateBlockCache(player);
 		}
 

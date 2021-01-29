@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
@@ -36,7 +37,7 @@ public class ScanTask implements Runnable {
         int playerChunkX = player.chunkX;
         int playerChunkZ = player.chunkZ;
         int scanChunkRange = Stores.SETTINGS.get().getRange();
-        
+
         for (int chunkX = playerChunkX - scanChunkRange; chunkX <= playerChunkX + scanChunkRange; chunkX++) {
             for (int chunkZ = playerChunkZ - scanChunkRange; chunkZ <= playerChunkZ + scanChunkRange; chunkZ++) {
 
@@ -49,7 +50,7 @@ public class ScanTask implements Runnable {
                 }
 
                 for (int x = chunkX * 16; x < (chunkX + 1) * 16; x++) {
-                    for (int z = chunkZ * 16; z < (chunkZ + 1) + 16; z++) {
+                    for (int z = chunkZ * 16; z < (chunkZ + 1) * 16; z++) {
                         for (int y = 0; y < maxScanHeight; y++) {
                             BlockPos pos = new BlockPos(x, y, z);
                             BlockState state = world.getBlockState(pos);
