@@ -36,9 +36,9 @@ public class BlockStore extends Store<List<BlockGroup>> {
             entries.add(new BlockGroup("beehives", "#d4be17", new String[]{"bee_nest"}));
             entries.add(new BlockGroup("shulkers", "#1bbf20", new String[]{"shulker_box", "red_shulker_box", "orange_shulker_box", "yellow_shulker_box", "lime_shulker_box", "green_shulker_box", "light_blue_shulker_box", "blue_shulker_box", "magenta_shulker_box", "purple_shulker_box", "pink_shulker_box", "gray_shulker_box", "light_gray_shulker_box", "brown_shulker_box", "black_shulker_box", "cyan_shulker_box", "white_shulker_box" }));
             entries.add(new BlockGroup("diamond", "#34c9eb", new String[]{"diamond_ore", "diamond_block"}));
-            entries.add(new BlockGroup("nether ore", "#ffffff", new String[]{"ancient_debris", "quartz_ore"}));
-            entries.add(new BlockGroup("iron ore", "#bf8f0a", new String[]{"iron_ore"}));
-            entries.add(new BlockGroup("lapis ore", "#1f0cc9", new String[]{"lapis_ore"}));
+            entries.add(new BlockGroup("nether_ore", "#ffffff", new String[]{"ancient_debris", "quartz_ore"}));
+            entries.add(new BlockGroup("iron_ore", "#bf8f0a", new String[]{"iron_ore"}));
+            entries.add(new BlockGroup("lapis_ore", "#1f0cc9", new String[]{"lapis_ore"}));
         }
 
         setBlockEntries(entries);
