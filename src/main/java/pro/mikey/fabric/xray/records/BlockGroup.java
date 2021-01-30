@@ -1,5 +1,6 @@
 package pro.mikey.fabric.xray.records;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BlockGroup {
@@ -11,6 +12,15 @@ public class BlockGroup {
         this.name = name;
         this.entries = entries;
         this.color = color;
+    }
+
+    public BlockGroup(String groupName, String groupColor, String[] blockNames) {
+        this.name = groupName;
+        this.color = groupColor;
+        this.entries = new ArrayList<>();
+        for (String blockName : blockNames) {
+            this.entries.add(new BlockEntry("", blockName, true));
+        }
     }
 
     public List<BlockEntry> getEntries() {
@@ -25,11 +35,7 @@ public class BlockGroup {
         return color;
     }
 
-    public String toString() {
-        String ret = this.color + " [ ";
-        for (BlockEntry entry : entries){
-            ret += entry.toString() + " ";
-        }
-        return ret + "]";
+    public int getColorInt() {
+        return Integer.valueOf(color.substring(1), 16);
     }
 }

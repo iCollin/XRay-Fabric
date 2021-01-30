@@ -22,49 +22,22 @@ Looking for the Forge version? Click the button below :tada:
 ## FORKED BY iCollin
 
 Hello, this is a version hacked by iCollin to work with 1.16.4, but is missing many features of the original mod and is not as good as MichaelHillcox's version.
-Please do not ask me for help with this mod, I do not intend to support it.
+I am not a mod developer, and this may not be well optimized. Please do not ask me for help with this mod, I do not intend to support it.
 All credit to MichaelHillcox, please see if original mod is supported before using this, the original will have less issues and more features.
 
 If you would like to use this hacked fork, here is my instructions:
 
 - Controls are found in Minecraft Controls tab (default is `g` to toggle xray on and off)
-- The GUI does not work
+- You can add blocks to search for with `/xray add $category $block`
+- The GUI can by default be opened with `\`
+- You can toggle blocks ON/OFF by clicking them in the GUI
+- You can expand/collapse categories in the GUI by clicking the header
 - Block states are ignored
-- Configuration can be done via the file at `minecraft/config/advanced-xray-fabric`
+- Configuration can be modified via the file at `minecraft/config/advanced-xray-fabric/blocks.json`
 
-Here is an example config:
+<img width="814" alt="GUI Preview" src="https://user-images.githubusercontent.com/12716076/106363799-b69bb000-62f8-11eb-94e9-b0d1d6f8c32d.png">
+<img width="905" alt="In Game Preview" src="https://user-images.githubusercontent.com/12716076/106363809-ca471680-62f8-11eb-9bd6-bc421d944b1f.png">
 
-```
-[
-  {
-    "name": "containers",
-    "entries": [
-      {
-        "state": "",
-        "name": "chest",
-        "active": true
-      },
-      {
-        "state": "",
-        "name": "trapped_chest",
-        "active": true
-      }
-    ],
-    "color": "#ff0000"
-  },
-  {
-    "name": "beehives",
-    "entries": [
-      {
-        "state": "",
-        "name": "bee_nest",
-        "active": true
-      }
-    ],
-    "color": "#d4be17"
-  }
-]
-```
 
 ## Disclaimer
 I am a `Forge Mod` Developer, not a Fabric Mod Developer, I am doing this mod per user request and out of pure intrest in learning a new API. The current status of this mod is `Unreleased` as the mod is currently a `WIP`. Don't `@` me.

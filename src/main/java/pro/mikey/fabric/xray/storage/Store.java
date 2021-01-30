@@ -42,7 +42,7 @@ public abstract class Store<T> {
         
         return null;
     }
-    
+
     public void write() {
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
