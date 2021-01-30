@@ -1,29 +1,44 @@
 package pro.mikey.fabric.xray;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
 import pro.mikey.fabric.xray.cache.RenderBlock;
+import pro.mikey.fabric.xray.records.BlockEntry;
+import pro.mikey.fabric.xray.records.BlockGroup;
 import pro.mikey.fabric.xray.screens.MainScreen;
 import pro.mikey.fabric.xray.storage.BlockStore;
 import pro.mikey.fabric.xray.storage.Stores;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+
+import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
 public class XRay implements ModInitializer {
 
@@ -57,6 +72,26 @@ public class XRay implements ModInitializer {
 
 		BlockStore blocks = Stores.BLOCKS;
 		System.out.println("blocks get: " + blocks.get());
+
+		CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+			LiteralArgumentBuilder<ServerCommandSource> builder = literal("add");
+
+			for (BlockGroup bg : blocks.get()) {
+				Iterator blockIt = Registry.BLOCK.iterator();
+				while(blockIt.hasNext()) {
+					Block block = (Block) blockIt.next();
+					String id = Registry.BLOCK.getId(block).toString();
+
+					builder.then((ArgumentBuilder)(literal(bg.getName()).then(literal(id).executes(context -> {
+						bg.getEntries().add(new BlockEntry("", id, true));
+						return 0;
+					}))));
+
+				}
+			}
+
+			dispatcher.register(literal("xray").then((ArgumentBuilder)builder));
+		});
 	}
 
 	private void gameClosing(MinecraftClient client) {
