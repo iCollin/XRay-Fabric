@@ -8,12 +8,14 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import pro.mikey.fabric.xray.records.BlockEntry;
 import pro.mikey.fabric.xray.records.BlockGroup;
 import pro.mikey.fabric.xray.storage.BlockStore;
 import pro.mikey.fabric.xray.storage.Stores;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class MainScreen extends AbstractScreen {
@@ -24,7 +26,7 @@ public class MainScreen extends AbstractScreen {
     private int guiLeft = 0;
     private int guiTop = 0;
 
-    private String selectedCategory = "";
+    private HashSet<String> selected = new HashSet<String>();
 
     public MainScreen() {
         super(LiteralText.EMPTY);
@@ -46,26 +48,36 @@ public class MainScreen extends AbstractScreen {
 
         this.drawTexture(matrices, this.guiLeft, this.guiTop, 1, 1, 147, 166);
 
-        int y = this.guiTop + 20;
+        drawCenteredString(matrices, textRenderer, "XRay-Fabric", this.width / 2, this.guiTop + 14, 0xffffff);
+        drawCenteredString(matrices, textRenderer, "MichaelHillcox & iCollin", this.width / 2, this.guiTop + 28, 0xffffff);
+
+        boolean foundMouse = false;
+        int y = 10;
         for (BlockGroup group : this.blocks) {
-            int x = this.width / 2 - 40;
-            drawStringWithShadow(matrices, textRenderer, group.getName(), x, y, group.getColorInt());
+            int x = 10;
+            drawCenteredString(matrices, textRenderer, group.getName(), x + 80, y, group.getColorInt());
             y += textRenderer.fontHeight + 2;
 
-            if (group.getName() != this.selectedCategory) {
+            if (!this.selected.contains(group.getName())) {
                 continue;
             }
 
             matrices.push();
-            matrices.translate(this.width / 2f - 60, y - 5, 0);
-            matrices.scale(.8f, .8f, .8f);
+            matrices.translate(0,  0, 1);
+            matrices.scale(1.f, 1.f, 1.f);
             int xShift = 0;
             for (BlockEntry entry : group.getEntries()) {
                 this.itemRenderer.renderInGui(new ItemStack(entry.getBlock().asItem()), x + xShift, y);
-                if (!entry.isActive()) {
+                if (!entry.isActive()){
+                    this.itemRenderer.zOffset = 51.f;
                     this.itemRenderer.renderInGui(new ItemStack(Items.BARRIER), x + xShift, y);
+                    this.itemRenderer.zOffset = 1.f;
                 }
-                if (xShift < 80) {
+                if (mouseX > x + xShift && mouseX < x + xShift + 20
+                        && mouseY > y && mouseY < y + 20) {
+                    this.renderTooltip(matrices, Text.of(entry.getName()), mouseX, mouseY);
+                }
+                if (xShift < 140) {
                     xShift += 20;
                 } else {
                     xShift = 0;
@@ -73,7 +85,7 @@ public class MainScreen extends AbstractScreen {
                 }
             }
             matrices.pop();
-            y += 24;
+            y += 20;
         }
 
         RenderSystem.popMatrix();
@@ -81,21 +93,16 @@ public class MainScreen extends AbstractScreen {
 
     @Override
     public boolean mouseClicked(double double_1, double double_2, int int_1) {
-        if (double_1 < guiLeft || double_1 > guiLeft + guiWidth
-                || double_2 < guiTop || double_2 > guiTop + guiHeight) {
-            return false;
-        }
-
-        double deltaX = double_1 - this.width / 2 + 40;
-        double deltaY = double_2 - (guiTop + 20);
+        double deltaX = double_1 - 10;
+        double deltaY = double_2 - 10;
 
         for (BlockGroup group : this.blocks) {
             int groupHeight = textRenderer.fontHeight + 2;
 
             String groupName = group.getName();
-            boolean groupSelected = this.selectedCategory == groupName;
+            boolean groupSelected = this.selected.contains(groupName);
             if (groupSelected) {
-                groupHeight += 24 + 20 * (group.getEntries().size() / 5);
+                groupHeight += 20 + 20 * (group.getEntries().size() / 8);
             }
 
             if (deltaY > groupHeight) {
@@ -104,12 +111,12 @@ public class MainScreen extends AbstractScreen {
             }
 
             if (!groupSelected) {
-                this.selectedCategory = groupName;
+                this.selected.add(groupName);
             } else if (deltaY < textRenderer.fontHeight + 2) {
-                this.selectedCategory = "";
+                this.selected.remove(groupName);
             } else {
                 // clicked on some block
-                int blockIdx = 5 * (int)((deltaY - textRenderer.fontHeight - 2) / 20) + (int)(deltaX / 20);
+                int blockIdx = 8 * (int)((deltaY - textRenderer.fontHeight - 2) / 20) + (int)(deltaX / 20);
 
                 if (blockIdx < group.getEntries().size()) {
                     BlockEntry entry = group.getEntries().get(blockIdx);
@@ -122,10 +129,10 @@ public class MainScreen extends AbstractScreen {
                 }
             }
 
-            break;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     @Override
