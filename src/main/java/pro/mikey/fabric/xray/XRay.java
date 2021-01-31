@@ -1,6 +1,7 @@
 package pro.mikey.fabric.xray;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.fabricmc.api.ModInitializer;
@@ -39,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 
 public class XRay implements ModInitializer {
 
@@ -74,23 +76,37 @@ public class XRay implements ModInitializer {
 		System.out.println("blocks get: " + blocks.get());
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-			LiteralArgumentBuilder<ServerCommandSource> builder = literal("add");
+			LiteralArgumentBuilder<ServerCommandSource> addBuilder = literal("add");
+			LiteralArgumentBuilder<ServerCommandSource> colorBuilder = literal("color");
 
 			for (BlockGroup bg : blocks.get()) {
+				colorBuilder.then(literal(bg.getName()).then((ArgumentBuilder)argument("color", StringArgumentType.word()).executes(context -> {
+					String color = StringArgumentType.getString(context, "color");
+					if (color.length() != 6) {
+						PlayerEntity player = MinecraftClient.getInstance().player;
+						if (player != null) {
+							player.sendMessage(Text.of("Color should look like this: c0c0c0"), false);
+						}
+						return 0;
+					}
+
+					bg.setColor('#' + color);
+					return 0;
+				})));
 				Iterator blockIt = Registry.BLOCK.iterator();
 				while(blockIt.hasNext()) {
 					Block block = (Block) blockIt.next();
 					String id = Registry.BLOCK.getId(block).toString();
 
-					builder.then((ArgumentBuilder)(literal(bg.getName()).then(literal(id).executes(context -> {
+					addBuilder.then((ArgumentBuilder)(literal(bg.getName()).then(literal(id).executes(context -> {
 						bg.getEntries().add(new BlockEntry("", id, true));
 						return 0;
 					}))));
-
 				}
 			}
 
-			dispatcher.register(literal("xray").then((ArgumentBuilder)builder));
+			dispatcher.register(literal("xray").then((ArgumentBuilder)addBuilder));
+			dispatcher.register(literal("xray").then((ArgumentBuilder)colorBuilder));
 		});
 	}
 

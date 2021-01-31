@@ -8,12 +8,6 @@ public class BlockGroup {
     private List<BlockEntry> entries;
     private String color;
 
-    public BlockGroup(String name, List<BlockEntry> entries, String color) {
-        this.name = name;
-        this.entries = entries;
-        this.color = color;
-    }
-
     public BlockGroup(String groupName, String groupColor, String[] blockNames) {
         this.name = groupName;
         this.color = groupColor;
@@ -31,8 +25,8 @@ public class BlockGroup {
         return name;
     }
 
-    public String getColor() {
-        return color;
+    public void setColor(String color) {
+        this.color = color;
     }
 
     public int getColorInt() {
