@@ -25,6 +25,7 @@ public class MainScreen extends AbstractScreen {
     final private int guiHeight = 166;
     private int guiLeft = 0;
     private int guiTop = 0;
+    private double scrollOffset = 0;
 
     private HashSet<String> selected = new HashSet<String>();
 
@@ -51,8 +52,7 @@ public class MainScreen extends AbstractScreen {
         drawCenteredString(matrices, textRenderer, "XRay-Fabric", this.width / 2, this.guiTop + 14, 0xffffff);
         drawCenteredString(matrices, textRenderer, "MichaelHillcox & iCollin", this.width / 2, this.guiTop + 28, 0xffffff);
 
-        boolean foundMouse = false;
-        int y = 10;
+        int y = 10 - (int)this.scrollOffset;
         for (BlockGroup group : this.blocks) {
             int x = 10;
             drawCenteredString(matrices, textRenderer, group.getName(), x + 80, y, group.getColorInt());
@@ -92,9 +92,19 @@ public class MainScreen extends AbstractScreen {
     }
 
     @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+        // scroll down is negative
+        scrollOffset -= amount;
+        if (scrollOffset < 0) {
+            scrollOffset = 0;
+        }
+        return super.mouseScrolled(mouseX, mouseY, amount);
+    }
+
+    @Override
     public boolean mouseClicked(double double_1, double double_2, int int_1) {
         double deltaX = double_1 - 10;
-        double deltaY = double_2 - 10;
+        double deltaY = double_2 - 10 + this.scrollOffset;
 
         for (BlockGroup group : this.blocks) {
             int groupHeight = textRenderer.fontHeight + 2;
