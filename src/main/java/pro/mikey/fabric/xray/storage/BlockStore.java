@@ -62,6 +62,11 @@ public class BlockStore extends Store<List<BlockGroup>> {
         return this.blockEntries;
     }
 
+    public void add(BlockGroup group) {
+        this.blockEntries.add(group);
+        this.xrayGroups.add(new XrayGroup(group));
+    }
+
     @Override
     Type getType() {
         return new TypeToken<List<BlockGroup>>() {}.getType();

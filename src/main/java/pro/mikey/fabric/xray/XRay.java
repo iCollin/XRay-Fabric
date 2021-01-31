@@ -100,13 +100,42 @@ public class XRay implements ModInitializer {
 
 					addBuilder.then((ArgumentBuilder)(literal(bg.getName()).then(literal(id).executes(context -> {
 						bg.getEntries().add(new BlockEntry("", id, true));
+						Stores.BLOCKS.setBlockEntries(Stores.BLOCKS.get());
 						return 0;
 					}))));
 				}
 			}
 
+			LiteralArgumentBuilder<ServerCommandSource> addGroupBuilder = literal("add")
+					.then((ArgumentBuilder)argument("groupName", StringArgumentType.word())
+					.then((ArgumentBuilder)argument("color", StringArgumentType.word())
+					.executes(context -> {
+				String groupName = StringArgumentType.getString(context, "groupName");
+				String color = StringArgumentType.getString(context, "color");
+				BlockGroup bg = new BlockGroup(groupName, color, new String[]{});
+				blocks.add(bg);
+				// this doesn't work, cant seem to register new command in a callback
+				CommandRegistrationCallback.EVENT.register((dispatcher2, dedicated2) -> {
+					LiteralArgumentBuilder<ServerCommandSource> addBuilder2 = literal("add");
+					Iterator blockIt = Registry.BLOCK.iterator();
+					while (blockIt.hasNext()) {
+						Block block = (Block) blockIt.next();
+						String id = Registry.BLOCK.getId(block).toString();
+
+						addBuilder2.then((ArgumentBuilder) (literal(bg.getName()).then(literal(id).executes(context2 -> {
+							bg.getEntries().add(new BlockEntry("", id, true));
+							Stores.BLOCKS.setBlockEntries(Stores.BLOCKS.get());
+							return 0;
+						}))));
+					}
+					dispatcher2.register(literal("xray").then((ArgumentBuilder) addBuilder2));
+				});
+				return 0;
+			})));
+
 			dispatcher.register(literal("xray").then((ArgumentBuilder)addBuilder));
 			dispatcher.register(literal("xray").then((ArgumentBuilder)colorBuilder));
+			dispatcher.register(literal("xray").then((ArgumentBuilder)addGroupBuilder));
 		});
 	}
 
